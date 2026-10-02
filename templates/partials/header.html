@@ -1,0 +1,19 @@
+<div class="announcement">Focaccia artesanal · Pedidos con 72 h de anticipación · Mar del Plata</div>
+<header class="site-header">
+    <!-- <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="main-navigation">☰</button> -->
+    <a class="brand" href="/tempus.focacceria/inicio/" aria-label="TEMPUS Focacceria, inicio">
+        <img class="brand-mark" src="/tempus.focacceria/img/icon.jpg?1" alt="" />TEMPUS Focacceria</a>
+    <!-- <nav id="main-navigation" aria-label="Navegación principal">
+        <button class="menu-close" type="button" aria-label="Cerrar menú" data-menu-close>×</button>
+        <a href="/tempus.focacceria/inicio/">Inicio</a>
+        <a href="/tempus.focacceria/productos/">Gestor de productos</a>
+    </nav> -->
+    <div class="menu-backdrop" data-menu-close></div>
+    <div class="header-actions">
+        {if $PAGE == 'inicio'}
+        <button class="icon-btn" aria-label="Buscar" onclick="document.location.href='/tempus.focacceria/productos/'"><i class="bi bi-person-circle"></i></button>
+        <button class="icon-btn" aria-label="Buscar" onclick="document.querySelector('#search').focus()"><i class="bi bi-search"></i></button>
+        <button class="icon-btn cart-btn" type="button" aria-label="Ver carrito" aria-expanded="false" aria-controls="tienda_carrito"><i class="bi bi-cart"></i><span class="cart-count" id="cart-count">0</span></button>
+        {/if}
+    </div>
+</header>
