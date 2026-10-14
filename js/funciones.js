@@ -685,8 +685,8 @@ function cargarPedido() {
                     alertify.error(json.error)
                     return
                 }
-
                 carrito.clear()
+                nombreInput.value = ''
                 contactInput.value = ''
                 deliveryDateInput.value = ''
                 deliveryAddressInput.value = ''
@@ -701,13 +701,18 @@ function cargarPedido() {
                     'Pedido cargado correctamente',
                     `Tu código de seguimiento es <strong>${codigo}</strong>. Guardalo para consultar el estado de tu pedido.`,
                     function () {
+                        document.querySelector('#tienda_carrito').classList.remove('is-visible')
+                        document.querySelector('#tienda_carrito').setAttribute('aria-hidden', 'true')
+                        document.querySelector('.cart-overlay').classList.remove('is-visible')
+                        document.querySelector('.cart-btn').setAttribute('aria-expanded', 'false')
+                        document.body.classList.remove('cart-open')
                         const trackingCodeInput = document.querySelector('#tracking-code')
                         if (!trackingCodeInput) return
                         trackingCodeInput.value = codigo
-                        document.querySelector('#seguimiento')?.scrollIntoView({ behavior: 'smooth' })
+                        document.querySelector('#seguimiento').scrollIntoView({ behavior: 'smooth' })
                         trackingCodeInput.focus({ preventScroll: true })
                     }
-                )
+                ).set('label', 'Consultar pedido')
             })
             .catch((error) => {
                 alertify.error('No se pudo guardar el pedido. Intentá nuevamente.')

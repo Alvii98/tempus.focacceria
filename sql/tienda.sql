@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-10-2026 a las 19:38:39
+-- Tiempo de generación: 14-10-2026 a las 15:46:27
 -- Versión del servidor: 10.4.25-MariaDB
 -- Versión de PHP: 8.1.10
 
@@ -54,6 +54,7 @@ CREATE TABLE `pedidos` (
   `id` int(11) NOT NULL,
   `codigo_seguimiento` varchar(16) NOT NULL,
   `fecha_entrega` date NOT NULL,
+  `nombre` varchar(255) NOT NULL,
   `contacto` varchar(255) NOT NULL,
   `direccion` varchar(500) NOT NULL,
   `observacion` text DEFAULT NULL,
