@@ -36,15 +36,22 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="cart-order-form">
-			<label for="cart-contact">Contacto (nombre y teléfono)
-				<input id="cart-contact" type="text" placeholder="Nombre y teléfono" autocomplete="name" required />
+		<div class="cart-order-form table-scroll" style="min-height: 230px;">
+			<label for="cart-nombre">Nombre
+				<input id="cart-nombre" type="text" placeholder="Nombre" autocomplete="name" required />
+			</label>
+			<label for="cart-contact">Contacto
+				<input id="cart-contact" type="text" placeholder="Contacto" autocomplete="contact" required />
 			</label>
 			<label for="cart-delivery-date">Fecha de entrega
 				<input id="cart-delivery-date" type="date" required />
 			</label>
 			<label for="cart-delivery-address">Dirección de entrega
 				<input id="cart-delivery-address" type="text" placeholder="Calle, número y localidad" autocomplete="street-address" required />
+			</label>
+			<label class="cart-pickup-option" for="cart-pickup">
+				<input id="cart-pickup" type="checkbox" />
+				<span>Retiro en domicilio - 10% OFF</span>
 			</label>
 			<label for="cart-order-observation">Observación
 				<textarea id="cart-order-observation" rows="2" placeholder="Indicaciones para el pedido (opcional)"></textarea>
@@ -112,7 +119,7 @@
 				<form class="order-tracking-form" id="order-tracking-form">
 					<label for="tracking-code">Código de seguimiento</label>
 					<div class="order-tracking-controls">
-						<input id="tracking-code" name="codigo" type="text" minlength="16" maxlength="16"  placeholder="Ej: A14C8D2F09BC318E" autocomplete="off" required />
+						<input id="tracking-code" name="codigo" type="text" minlength="17" maxlength="17"  placeholder="Ej: A14C8D2F09BC318E-1" autocomplete="off" required />
 						<button class="primary-btn" type="submit"><i class="bi bi-search"></i> Consultar</button>
 					</div>
 				</form>

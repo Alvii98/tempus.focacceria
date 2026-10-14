@@ -137,7 +137,7 @@ class datos{
         }
     }
 
-    static public function guardar_pedido($fecha_entrega, $contacto, $direccion, $observacion, $items){
+    static public function guardar_pedido($fecha_entrega, $nombre, $contacto, $direccion, $observacion, $items){
         $conn = SingletonConexion::getInstance()->getConnection();
         if (!$conn || !mysqli_begin_transaction($conn)) return false;
 
@@ -146,9 +146,9 @@ class datos{
             $codigoSeguimiento = '';
             for ($attempt = 0; $attempt < 5; $attempt++) {
                 $codigoSeguimiento = strtoupper(bin2hex(random_bytes(8)));
-                $insertPedido = mysqli_prepare($conn, "INSERT INTO pedidos (codigo_seguimiento, fecha_entrega, contacto, direccion, observacion, total, estado, fecha_alta) VALUES (?, ?, ?, ?, ?, 0, 'pendiente', NOW())");
+                $insertPedido = mysqli_prepare($conn, "INSERT INTO pedidos (codigo_seguimiento, fecha_entrega, nombre, contacto, direccion, observacion, total, estado, fecha_alta) VALUES (?, ?, ?, ?, ?, ?, 0, 'pendiente', NOW())");
                 if (!$insertPedido) throw new RuntimeException('No se pudo preparar el pedido');
-                mysqli_stmt_bind_param($insertPedido, 'sssss', $codigoSeguimiento, $fecha_entrega, $contacto, $direccion, $observacion);
+                mysqli_stmt_bind_param($insertPedido, 'ssssss', $codigoSeguimiento, $fecha_entrega, $nombre, $contacto, $direccion, $observacion);
                 if (mysqli_stmt_execute($insertPedido)) {
                     $idPedido = mysqli_insert_id($conn);
                     break;
@@ -235,7 +235,7 @@ class datos{
             if (!mysqli_stmt_execute($actualizarPedido)) throw new RuntimeException('No se pudo actualizar el total del pedido');
 
             mysqli_commit($conn);
-            return ['id' => $idPedido, 'codigo_seguimiento' => $codigoSeguimiento];
+            return ['id' => $idPedido, 'codigo_seguimiento' => "$codigoSeguimiento$idPedido"];
         } catch (\Throwable $th) {
             mysqli_rollback($conn);
             error_log('Error al guardar pedido: ' . $th->getMessage());
@@ -246,8 +246,8 @@ class datos{
     static public function pedidos($codigoSeguimiento = null){
         try {
             $conn = SingletonConexion::getInstance()->getConnection();
-            $filtroCodigo = $codigoSeguimiento === null ? '' : 'WHERE pe.codigo_seguimiento = ?';
-            $query = "SELECT pe.id AS pedido_id, pe.codigo_seguimiento, pe.fecha_entrega, pe.contacto, pe.direccion,
+            $filtroCodigo = $codigoSeguimiento === null ? '' : 'WHERE CONCAT(pe.codigo_seguimiento,pe.id) = ?';
+            $query = "SELECT pe.id AS pedido_id, pe.codigo_seguimiento, pe.fecha_entrega, pe.nombre, pe.contacto, pe.direccion,
                 pe.observacion, pe.total, pe.estado, pe.fecha_alta,
                 pd.id AS detalle_id, pd.id_producto, pd.producto_nombre,
                 pd.precio_unitario AS producto_precio, pd.cantidad AS producto_cantidad,
@@ -277,7 +277,7 @@ class datos{
                 if (!isset($pedidos[$idPedido])) {
                     $pedidos[$idPedido] = [
                         'id' => $idPedido,
-                        'codigo_seguimiento' => $row['codigo_seguimiento'],
+                        'codigo_seguimiento' => $row['codigo_seguimiento'].$row['pedido_id'],
                         'fecha_entrega' => $row['fecha_entrega'],
                         'contacto' => $row['contacto'],
                         'direccion' => $row['direccion'],

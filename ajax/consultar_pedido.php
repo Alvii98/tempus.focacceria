@@ -9,7 +9,7 @@ $json->resp = '';
 
 try {
     $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
-    if (!preg_match('/^[A-F0-9]{16}$/', $codigo)) {
+    if (!preg_match('/^[A-F0-9]{17}$/', $codigo)) {
         throw new RuntimeException('Ingresá un código de seguimiento válido');
     }
 

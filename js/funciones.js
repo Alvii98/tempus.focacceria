@@ -42,9 +42,12 @@ function initializeCart() {
     const cartCloseButtons = document.querySelectorAll('[data-cart-close]')
     const cartSubmit = document.querySelector('#cart-submit')
     const deliveryDateInput = document.querySelector('#cart-delivery-date')
+    const pickupCheckbox = document.querySelector('#cart-pickup')
 
     if (!cartButton || !cartPanel || !cartOverlay) return
     cartSubmit?.addEventListener('click', cargarPedido)
+    pickupCheckbox?.addEventListener('change', actualizarEstadoDireccionPedido)
+    actualizarEstadoDireccionPedido()
 
     if (deliveryDateInput) {
         const minimumDate = new Date(Date.now() + 72 * 60 * 60 * 1000)
@@ -326,7 +329,6 @@ function initializeOrderManagement() {
             ordersBody.append(row)
             return
         }
-
         pedidos.forEach((pedido) => {
             const row = document.createElement('tr')
             // appendCell(row, `#${pedido.id}`)
@@ -569,6 +571,7 @@ function renderizarCarrito() {
     const cartCount = document.querySelector('#cart-count')
     const cartTotal = document.querySelector('#cart-total')
     const cartSubmit = document.querySelector('#cart-submit')
+    const pickupCheckbox = document.querySelector('#cart-pickup')
 
     if (!carritoBody) return
 
@@ -598,39 +601,71 @@ function renderizarCarrito() {
                 </tr>`
     })
 
+    const descuentoAplicado = pickupCheckbox?.checked ? 0.10 : 0
+    const totalFinal = totalCompra * (1 - descuentoAplicado)
+
     carritoBody.innerHTML = datos
     if (cartCount) cartCount.textContent = totalUnidades
-    if (cartTotal) cartTotal.textContent = `$${formatearPrecio(totalCompra)}`
+    if (cartTotal) cartTotal.textContent = `$${formatearPrecio(totalFinal)}`
     if (cartSubmit) cartSubmit.disabled = carrito.size === 0
+}
+
+function actualizarEstadoDireccionPedido() {
+    const pickupCheckbox = document.querySelector('#cart-pickup')
+    const deliveryAddressInput = document.querySelector('#cart-delivery-address')
+
+    if (!pickupCheckbox || !deliveryAddressInput) return
+
+    const isPickup = pickupCheckbox.checked
+    deliveryAddressInput.disabled = isPickup
+    deliveryAddressInput.required = !isPickup
+
+    if (isPickup) {
+        deliveryAddressInput.value = ''
+    }
+
+    renderizarCarrito()
 }
 
 function cargarPedido() {
     if (!carrito.size) return
 
+    const nombreInput = document.querySelector('#cart-nombre')
     const contactInput = document.querySelector('#cart-contact')
     const deliveryDateInput = document.querySelector('#cart-delivery-date')
     const deliveryAddressInput = document.querySelector('#cart-delivery-address')
+    const pickupCheckbox = document.querySelector('#cart-pickup')
     const observationInput = document.querySelector('#cart-order-observation')
+    const retiroEnDomicilio = pickupCheckbox?.checked
 
+    if (!nombreInput?.value.trim()) {
+        nombreInput?.focus()
+        alertify.error('Ingresá tu nombre')
+        return
+    }
     if (!contactInput?.value.trim()) {
         contactInput?.focus()
-        alertify.error('Ingresá un nombre y teléfono de contacto')
+        alertify.error('Ingresá un teléfono de contacto')
         return
     }
     if (!deliveryDateInput?.reportValidity()) {
         return
     }
-    if (!deliveryAddressInput?.value.trim()) {
+    if (!retiroEnDomicilio && !deliveryAddressInput?.value.trim()) {
         deliveryAddressInput?.focus()
         alertify.error('Ingresá la dirección de entrega')
         return
     }
 
+    const direccionPedido = retiroEnDomicilio ? 'Retiro en domicilio' : deliveryAddressInput.value.trim()
+
     const datosPedido = new FormData()
     datosPedido.append('pedido', JSON.stringify({
         fecha_entrega: deliveryDateInput.value,
+        nombre: nombreInput.value.trim(),
         contacto: contactInput.value.trim(),
-        direccion: deliveryAddressInput.value.trim(),
+        direccion: direccionPedido,
+        descuento_aplicado: retiroEnDomicilio ? 10 : 0,
         observacion: observationInput?.value.trim() || '',
         productos: Array.from(carrito.values()).map((item) => ({
             id: item.id,
@@ -655,6 +690,10 @@ function cargarPedido() {
                 contactInput.value = ''
                 deliveryDateInput.value = ''
                 deliveryAddressInput.value = ''
+                if (pickupCheckbox) {
+                    pickupCheckbox.checked = false
+                    actualizarEstadoDireccionPedido()
+                }
                 if (observationInput) observationInput.value = ''
                 renderizarCarrito()
                 const codigo = json.resp.codigo_seguimiento
@@ -759,8 +798,7 @@ function renderizarProductosDesdeLista(productos, paginaActual = 1) {
             : '<div class="no-image">Sin imagen</div>'
 
         return `<article class="product-card" data-product-id="${item.id}" data-category="${item.categoria_nombre || ''}" data-topping-limit="${Number(item.topping) || 0}" data-name="${item.nombre}">
-                    <div class="product-photo">${imagen}
-                    ${tags}<i class="bi bi-cart-plus quick-add icon" onclick="cargarCarrito('${item.id}')"></i></div>
+                    <div class="product-photo">${imagen}${tags}</div>
                     <div class="product-info"><div><h3>${item.nombre}</h3><p>${item.descripcion}</p></div><span class="price">$${formatearPrecio(item.valor)}</span></div>
                 </article>`
     }).join('')
